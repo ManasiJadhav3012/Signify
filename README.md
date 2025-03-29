@@ -42,20 +42,29 @@ To train a robust ASL recognition model, this project follows a custom data pipe
 
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.9/10
 - pip
+
+```bash
+pip install flask
+pip install opencv-python-headless
+pip install mediapipe
+pip install keras
+pip install tensorflow
+```
 
 ### Installation
 
 ```bash
 git clone https://github.com/ManasiJadhav3012/Signify.git
-cd asl-translator
+cd Signify
 pip install -r requirements.txt
 ```
 
 ### Run the app
 
 ```bash
+cd app_demo
 python app.py
 ```
 
@@ -69,6 +78,7 @@ http://127.0.0.1:5000
 
 This project uses MediaPipe for real-time hand tracking and OpenCV for frame capture and preprocessing.
 
+# 
 
 Once the application is up and running you will be able to see following pages as you navigate through the application.
 
