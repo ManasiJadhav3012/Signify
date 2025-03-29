@@ -1,43 +1,112 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Camera Page</title>
     <style>
         body {
-            background-color: #FFD1DC;
+            background-image: url('/static/images/background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             font-family: Arial, sans-serif;
-            color: #6B395F; 
-            text-align: center;
-            padding: 50px;
+            color: #6B395F;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
         }
-        button {
-            display: inline-block;
-            background-color: #9F86BA; 
+
+        #videoElement {
+            display: block;
+            margin: 80px auto 10px;
+            border-radius: 15px;
+            width: 1000px;
+            height: 600px;
+            z-index: 1;
+        }
+
+        #overlay {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        .button-container {
+            position: absolute;
+            top: 50px;
+            right: 100px;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .button-container button {
+            background-color: #9F86BA;
             color: #FFFFFF;
-            padding: 10px 20px;
-            margin-top: 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 1.2em;
+            padding: 15px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
-        button:hover {
+
+        .button-container button:hover {
             background-color: #8C75A8;
+            transform: scale(1.06);
+        }
+
+        #predictionBox {
+            position: absolute;
+            bottom: 250px;
+            left: 20px;
+            text-align: left;
+            color: #a25694;
+            font-size: 2.2em;
+            font-weight: bold;
+        }
+
+        .prediction-title {
+            margin-bottom: 10px;
+        }
+
+        .prediction-letter {
+            display: inline-block;
+            background-color: #f5e0f0;
+            padding: 10px 25px;
+            border-radius: 12px;
+            font-size: 1.6em;
+            color: #6B395F;
+            box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.25);
         }
     </style>
 </head>
+
 <body>
-    <video id="videoElement" autoplay playsinline width="640" height="480"></video>
-    <canvas id="overlay" width="640" height="480" style="position: absolute; top: 0; left: 0;"></canvas>
-    <button id="startVideo">Start Video</button>
-    <button id="stopVideo" onclick="stopVideo()">Stop Video</button>
-    <p id="predictedLetter">Predicted letter: </p>
+    <div class="button-container">
+        <button id="startVideo">Start Video</button>
+        <button id="stopVideo" onclick="stopVideo()">Stop Video</button>
+    </div>
+
+    <video id="videoElement" autoplay playsinline></video>
+    <canvas id="overlay" width="800" height="600"></canvas>
+    <div id="predictionBox">
+        <div class="prediction-title">Predicted letter:</div>
+        <div class="prediction-letter" id="predictedLetter">-</div>
+    </div>
 
     <script>
         const video = document.getElementById('videoElement');
         const startButton = document.getElementById('startVideo');
         let mediaStream = null;
 
-        startButton.addEventListener('click', function() {
+        startButton.addEventListener('click', function () {
             if (navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({ video: true })
                     .then(function (stream) {
@@ -62,12 +131,12 @@
             const canvas = document.createElement('canvas');
             const overlay = document.getElementById('overlay');
             const overlayCtx = overlay.getContext('2d');
-        
+
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
             const data = canvas.toDataURL('image/png');
-        
+
             fetch('/predict', {
                 method: 'POST',
                 headers: {
@@ -75,25 +144,27 @@
                 },
                 body: JSON.stringify({ image: data })
             })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("predictedLetter").innerText = "Predicted letter: " + data.char;
-                if (data.bbox) {
-                    overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
-                    overlayCtx.beginPath();
-                    overlayCtx.rect(data.bbox.xmin, data.bbox.ymin, data.bbox.xmax - data.bbox.xmin, data.bbox.ymax - data.bbox.ymin);
-                    overlayCtx.strokeStyle = 'red';
-                    overlayCtx.lineWidth = 2;
-                    overlayCtx.stroke();
+                .then(response => response.json())
+                .then(data => {
+                    const char = data.char || 'No hand detected';
+                    document.getElementById("predictedLetter").innerText = char;
 
-                    
-                    overlayCtx.font = "18px Arial";
-                    overlayCtx.fillStyle = "red";
-                    overlayCtx.fillText(data.char, data.bbox.xmin, data.bbox.ymin - 10);
-                }
-            })
-            .catch(error => console.error('Error:', error));
+                    if (data.bbox) {
+                        overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+                        overlayCtx.beginPath();
+                        overlayCtx.rect(data.bbox.xmin, data.bbox.ymin, data.bbox.xmax - data.bbox.xmin, data.bbox.ymax - data.bbox.ymin);
+                        overlayCtx.strokeStyle = 'red';
+                        overlayCtx.lineWidth = 2;
+                        overlayCtx.stroke();
+
+                        overlayCtx.font = "24px Arial";
+                        overlayCtx.fillStyle = "red";
+                        overlayCtx.fillText(char, data.bbox.xmin, data.bbox.ymin - 10);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
         }
     </script>
 </body>
+
 </html>

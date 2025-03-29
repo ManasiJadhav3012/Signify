@@ -1,117 +1,218 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>English to ASL</title>
     <style>
         body {
-            background-color: #FFD1DC;
+            background-image: url('/static/images/background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             font-family: Arial, sans-serif;
             color: #6B395F;
-            text-align: center;
-            padding: 50px;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        video,
+        canvas {
+            display: block;
+            margin: 50px auto 0;
+            border-radius: 25px;
+            z-index: 1;
+        }
+
+        .video-container {
+            margin-left: 200px;
+            margin-bottom: 200px;
+            /* Shifts the video to the right */
+            z-index: 1;
+        }
+
+        .top-right-buttons {
+            position: absolute;
+            top: 50px;
+            right: 40px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            gap: 20px;
+            z-index: 2;
         }
-        button {
-            display: inline-block;
+
+        .top-right-buttons button {
             background-color: #9F86BA;
-            color: #FFFFFF;
-            padding: 10px 20px;
-            margin: 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 1.2em;
+            color: white;
+            border: none;
+            padding: 20px 36px;
+            font-size: 1.6em;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
         }
-        button:hover {
+
+        .top-right-buttons button:hover {
             background-color: #8C75A8;
+        }
+
+        .left-info-box {
+            position: absolute;
+            top: 60px;
+            left: 40px;
+            background-color: rgba(255, 255, 255, 0.07);
+            padding: 30px;
+            border-radius: 16px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            border: 2px solid #9F86BA;
+            width: 320px;
+        }
+
+        .left-info-box button {
+            background-color: #9F86BA;
+            color: white;
+            border: none;
+            padding: 18px 36px;
+            font-size: 1.4em;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .left-info-box button:hover {
+            background-color: #8C75A8;
+        }
+
+        .left-info-box p {
+            font-size: 1.6em;
+            font-weight: bold;
+            margin: 18px 0 6px;
+        }
+
+        .letter-box,
+        .prob-box {
+            background-color: #fff;
+            border: 2px solid #9F86BA;
+            padding: 10px;
+            font-size: 2em;
+            font-weight: bold;
+            color: #6B395F;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        #randomLetter,
+        #predictionProb {
+            font-weight: bold;
+            color: #a25694;
         }
     </style>
 </head>
+
 <body>
-    <video id="videoElement" autoplay playsinline width="640" height="480"></video>
-    <canvas id="overlay" width="640" height="480" style="position: absolute; top: 0; left: 0;"></canvas>
-    <button id="startVideo">Start Video</button>
-    <button id="stopVideo" onclick="stopVideo()">Stop Video</button>
-    <button id="getLetter">Get Letter</button>
-    <p id="predictionProb">Prediction Probability: </p>
-    <p id="randomLetter">Try for this sign: </p>
+
+    <!-- Video and Canvas -->
+    <div class="video-container">
+        <video id="videoElement" width="720" height="600" autoplay playsinline></video>
+        <canvas id="overlay" width="720" height="600"></canvas>
+    </div>
+
+    <!-- Top Right -->
+    <div class="top-right-buttons">
+        <button id="startVideo">Start Video</button>
+        <button id="stopVideo">Stop Video</button>
+    </div>
+
+    <!-- Left Info Box -->
+    <div class="left-info-box">
+        <button id="getLetter">Get Letter</button>
+
+        <p>Try for this sign:</p>
+        <div class="letter-box" id="randomLetter">-</div>
+
+        <p>Prediction Probability:</p>
+        <div class="prob-box" id="predictionProb">-</div>
+    </div>
 
     <script>
-        const video = document.getElementById('videoElement');
-        const startButton = document.getElementById('startVideo');
-        const random_Letter = document.getElementById('getLetter');
+        const video = document.getElementById("videoElement");
+        const startBtn = document.getElementById("startVideo");
+        const stopBtn = document.getElementById("stopVideo");
+        const letterBtn = document.getElementById("getLetter");
+
         let mediaStream = null;
 
-        startButton.addEventListener('click', function() {
-            if (navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(function (stream) {
-                        video.srcObject = stream;
-                        mediaStream = stream;
-                        setInterval(sendFrame, 1000); // Send frame every second
-                    })
-                    .catch(function (error) {
-                        console.log("Something went wrong!", error);
-                    });
-            }
+        startBtn.addEventListener("click", () => {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                    mediaStream = stream;
+                    setInterval(sendFrame, 1000);
+                })
+                .catch(err => console.error("Error accessing camera:", err));
         });
 
-        function stopVideo() {
+        stopBtn.addEventListener("click", () => {
             if (mediaStream) {
                 mediaStream.getTracks().forEach(track => track.stop());
                 video.srcObject = null;
             }
-        }
+        });
 
-        random_Letter.addEventListener('click', function() {
-            fetch('/get_random_letter', {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("randomLetter").innerText = "Try for this sign: " + data.random_char;
-            })
-            .catch(error => console.log('Error fetching random letter:', error));
+        letterBtn.addEventListener("click", () => {
+            fetch("/get_random_letter", { method: "POST" })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("randomLetter").innerText = data.random_char;
+                });
         });
 
         function sendFrame() {
-        const canvas = document.createElement('canvas');
-        const overlay = document.getElementById('overlay');
-        const overlayCtx = overlay.getContext('2d');
+            const canvas = document.createElement("canvas");
+            const overlay = document.getElementById("overlay");
+            const ctx = overlay.getContext("2d");
 
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        const data = canvas.toDataURL('image/png');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext("2d").drawImage(video, 0, 0);
+            const imgData = canvas.toDataURL("image/png");
 
-        fetch('/predict_prob', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ image: data })
-        })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("predictionProb").innerText = "Prediction Probability: " + data.probability;
-            if (data.bbox) {
-                overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
-                overlayCtx.beginPath();
-                overlayCtx.rect(data.bbox.xmin, data.bbox.ymin, data.bbox.xmax - data.bbox.xmin, data.bbox.ymax - data.bbox.ymin);
-                overlayCtx.strokeStyle = 'red';
-                overlayCtx.lineWidth = 2;
-                overlayCtx.stroke();
-                overlayCtx.font = "18px Arial";
-                overlayCtx.fillStyle = "red";
-                overlayCtx.fillText(data.probability, data.bbox.xmin, data.bbox.ymin - 10);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
+            fetch("/predict_prob", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image: imgData }),
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const probText = data.probability !== undefined && data.probability !== null
+                        ? data.probability
+                        : "No hand detected";
+                    document.getElementById("predictionProb").innerText = probText;
+
+                    if (data.bbox) {
+                        ctx.clearRect(0, 0, overlay.width, overlay.height);
+                        ctx.beginPath();
+                        ctx.rect(data.bbox.xmin, data.bbox.ymin, data.bbox.xmax - data.bbox.xmin, data.bbox.ymax - data.bbox.ymin);
+                        ctx.strokeStyle = "red";
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+
+                        ctx.font = "24px Arial";
+                        ctx.fillStyle = "red";
+                        ctx.fillText(data.probability || "", data.bbox.xmin, data.bbox.ymin - 10);
+                    }
+                })
+                .catch(err => {
+                    console.error("Prediction error:", err);
+                    document.getElementById("predictionProb").innerText = "Error";
+                });
+        }
     </script>
 </body>
+
 </html>
