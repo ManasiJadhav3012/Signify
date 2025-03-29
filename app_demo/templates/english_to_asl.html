@@ -28,7 +28,6 @@
         .video-container {
             margin-left: 200px;
             margin-bottom: 200px;
-            /* Shifts the video to the right */
             z-index: 1;
         }
 
@@ -116,19 +115,16 @@
 
 <body>
 
-    <!-- Video and Canvas -->
     <div class="video-container">
         <video id="videoElement" width="720" height="600" autoplay playsinline></video>
         <canvas id="overlay" width="720" height="600"></canvas>
     </div>
 
-    <!-- Top Right -->
     <div class="top-right-buttons">
         <button id="startVideo">Start Video</button>
         <button id="stopVideo">Stop Video</button>
     </div>
 
-    <!-- Left Info Box -->
     <div class="left-info-box">
         <button id="getLetter">Get Letter</button>
 
