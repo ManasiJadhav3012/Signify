@@ -27,7 +27,7 @@ Welcome to the ASL Translator! This web application enables two-way communicatio
 ### Installation
 
 ```bash
-git clone https://github.com/yourusername/asl-translator.git
+git clone https://github.com/ManasiJadhav3012/Signify.git
 cd asl-translator
 pip install -r requirements.txt
 ```
