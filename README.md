@@ -22,19 +22,19 @@ Welcome to the ASL Translator! This web application enables two-way communicatio
 To train a robust ASL recognition model, this project follows a custom data pipeline built with OpenCV and MediaPipe:
 
 ### 1. data_collection.py – 📸 Collect Sign Images
-    • Captures images from webcam for 24 different ASL hand signs (A-Y excluding J and Z).
-    • Stores 100 images per class under ./data/ directory.
-    • Press Q to start collecting data for each class.
+- Captures images from webcam for 24 different ASL hand signs (A-Y excluding J and Z).
+- Stores 100 images per class under ./data/ directory.
+- Press Q to start collecting data for each class.
 
 ### 2. dataset_creation.py – ✨ Extract Landmarks
-    • Uses MediaPipe to extract 21 hand landmarks (x, y) from collected images.
-    • Stores extracted landmark vectors and their class labels in data.pickle.
+- Uses MediaPipe to extract 21 hand landmarks (x, y) from collected images.
+- Stores extracted landmark vectors and their class labels in data.pickle.
 
 ### 3. dataset_training.ipynb – 🧠 Train the Model
-    • Loads landmark data from data.pickle.
-    • Trains a CNN to classify 24 hand gestures using TensorFlow/Keras.
-    • Saves trained model and label mappings in cnn_model.p.
-    • Also allows real-time gesture testing with probability feedback.
+- Loads landmark data from data.pickle.
+- Trains a CNN to classify 24 hand gestures using TensorFlow/Keras.
+- Saves trained model and label mappings in cnn_model.p.
+- Also allows real-time gesture testing with probability feedback.
 
 **📁 All training-related files and outputs are self-contained and customizable.**
 

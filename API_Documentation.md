@@ -25,8 +25,8 @@ No request body is needed.
 ## 🤖 Predict Probability from Video Frame
 This endpoint takes a base64-encoded image frame from the webcam and returns:
 
-    • Probability of sign match (or No hand detected)
-    • Bounding box (if a hand is detected)
+- Probability of sign match (or No hand detected)
+- Bounding box (if a hand is detected)
 
 #### ➤ Endpoint:
 ```bash
@@ -69,24 +69,24 @@ These pages are served by the Flask backend:
 GET /
 ```
 
-    • Displays welcome message and buttons for translation modes.
+- Displays welcome message and buttons for translation modes.
 
 #### ➤ ASL to English (Webcam Prediction UI)
 ```bash
 GET /camera
 ```
 
-    • Starts webcam.
-    • User signs a letter.
-    • App detects hand pose and predicts the letter.
+- Starts webcam.
+- User signs a letter.
+- App detects hand pose and predicts the letter.
 
 #### ➤ English to ASL (Letter-to-Gesture Display)
 ```bash
 GET /english_to_asl
 ```
 
-    • User inputs a letter.
-    • App displays gesture image/animation for that letter.
+- User inputs a letter.
+- App displays gesture image/animation for that letter.
 
 ## ⚠️ Error Handling
 
