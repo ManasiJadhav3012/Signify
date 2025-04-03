@@ -15,7 +15,7 @@ Welcome to the ASL Translator! This web application enables two-way communicatio
 - **Frontend**: HTML, CSS, JavaScript
 - **Backend**: Flask (Python)
 - **Model**: CNN-based image classification for ASL letters
-- **Libraries**: OpenCV, NumPy, Flask, TensorFlow/Keras
+- **Libraries**: OpenCV, NumPy, Flask, TensorFlow/Keras, MediaPipe
 
 ## 📊 Dataset & Model Preparation
 
@@ -28,7 +28,7 @@ To train a robust ASL recognition model, this project follows a custom data pipe
 
 ### 2. dataset_creation.py – ✨ Extract Landmarks
 - Uses MediaPipe to extract 21 hand landmarks (x, y) from collected images.
-- Stores extracted landmark vectors and their class labels in data.pickle.
+- Stores extracted landmark vectors and their class labels based on the signs in data.pickle.
 
 ### 3. dataset_training.ipynb – 🧠 Train the Model
 - Loads landmark data from data.pickle.
